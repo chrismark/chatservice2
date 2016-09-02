@@ -1,0 +1,17 @@
+{
+  "name": "chatservice2",
+  "version": "0.0.1",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "chrono-node": "^1.2.4",
+    "fuzzyset.js": "git+https://git@github.com/Glench/fuzzyset.js.git",
+    "sentiment": "^2.0.0",
+    "stately.js": "^1.3.0"
+  }
+}
