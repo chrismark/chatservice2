@@ -57,7 +57,7 @@ ChatBotCore.prototype.process = function(rawMessage, line, session) {
     if (rawMessage) {
         session = this.getSession(rawMessage.userid);
         if (!session) {
-            session = this.createSession(rawMessage.userid, rawMessage.from, '/chat/' + rawMessage.userid + '/static');
+            session = this.createSession(rawMessage.userid, rawMessage.froma, '/chat/' + rawMessage.userid + '/static');
         }
         line = rawMessage.message;
     }
@@ -157,14 +157,14 @@ ChatBotCore.prototype.process = function(rawMessage, line, session) {
                 }, 5000);
             }
             else if (isResult) { // display result
-                this.emit('say', info.message, session.result);
+                this.emit('say', info.message.replace('%user%', session.info.name), session.result);
                 //console.log('say', info.message, session.result);
                 console.log('');
                 session.states['next']();
                 return this.process(null, null, session);
             }
             else if (isDisplay) { // display any message
-                this.emit('say', info.message);
+                this.emit('say', info.message.replace('%user%', session.info.name));
                 //console.log('say', info.message);
                 session.states['next']();
             }
