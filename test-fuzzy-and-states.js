@@ -1,8 +1,8 @@
-var FuzzySet = require('fuzzyset.js');
-var Stately = require('stately.js');
-var ChronoNode = require('chrono-node');
-var inputs = {};
-var predictionResult = '';
+var ChatBotCore = require('./chatbotcore');
+
+// var inputs = {};
+// var predictionResult = '';
+// var session = {};
 
 var map = {
     "outfinety": {
@@ -45,7 +45,7 @@ var map = {
     }
 };
 
-var state = Stately.machine({
+var statesData = {
     "start": {
         "wellbeing": "outfinety",
         "greeting": "outaskproc",
@@ -92,7 +92,8 @@ var state = Stately.machine({
     "outyourewelcome": {
         "next": "start"
     }
-});
+};
+// var state = Stately.machine(stateData);
 
 var rootProcedures = {
     "test": "test",
@@ -119,14 +120,25 @@ var rootProcedures = {
     "What if I it's a holiday, what will happen with price?": "whatif"
 };
 
-var data_keys = Object.keys(rootProcedures);
-console.log(data_keys);
+// var data_keys = Object.keys(rootProcedures);
+// console.log(data_keys);
 
-var a = FuzzySet(/*{useLevenshtein: true, gramSizeLower: 3}*/);
+// var a = FuzzySet();
+// for (var i = 0; i < data_keys.length; i++) {
+//     a.add(data_keys[i]);
+// }
 
-for (var i = 0; i < data_keys.length; i++) {
-    a.add(data_keys[i]);
-}
+var chatBotCore = new ChatBotCore('HelieX');
+chatBotCore.setup(rootProcedures, statesData, map);
+chatBotCore.on('say', function(message) {
+    var args = (arguments.length === 1 ? [arguments[0]] : Array.apply(null, arguments));
+    args.unshift('say');
+    console.log.apply(null, args);
+});
+chatBotCore.on('prompt', function() {
+    console.log('');
+    rl.prompt();
+});
 
 console.log('');
 
@@ -138,42 +150,17 @@ var rl = readline.createInterface({
 rl.setPrompt('Enter message (Ctrl+C to exit): ');
 rl.prompt();
 
-var threshold = 0.4;
-
-// function matchProc(line, state, matchCb, nullResultCb, belowThresholdCb) {
-//     var result = a.get(line);
-//     if (result) {
-//         console.log('Result for is', result);
-//         var perc = result[0][0];
-//         var match = rootProcedures[result[0][1]];
-//         console.log('');
-//         if (perc < threshold) {
-//             console.log('Match % is below threshold:', threshold);
-//             console.log('Do you mean:', match);
-//             if (belowThresholdCb) {
-//                 belowThresholdCb();
-//             }
-//         }
-//         else { // goto proc's next state and update current state variable
-//             console.log('Match is', match);
-//             console.log('');
-//             if (match) {
-//                 state[match]();
-//                 return proc(null);
-//                 return matchCb();
-//             }
-//         }
-//     }
-//     return proc(null);
-// }
+// var threshold = 0.4;
 
 rl.on('line', function proc(line) {
     if (line) {
         console.log(`Received ${line}`);  
-    } 
+        line = {userid: 1, name: 'Mark', message: line};
+    }
 
+    chatBotCore.process(line);
+/*
     var curstate = state.getMachineState();
-    //console.log('current state', curstate);
 
     var info = map[curstate];
     var isAskingMore = curstate.indexOf('inmore') == 0; // expecting refusal or entry
@@ -276,8 +263,8 @@ rl.on('line', function proc(line) {
                 state['next']();
             }
         }
-    }
+    }*/
 
-    console.log('');
-    rl.prompt();
+    /*console.log('');
+    rl.prompt();*/
 });
