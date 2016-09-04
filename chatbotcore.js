@@ -146,7 +146,7 @@ ChatBotCore.prototype.process = function(rawMessage, line, session) {
                 return this.process(null, null, session);
             }
             else if (isProcessing) { // display "Processing..Please wait..." message
-                this.emit('say', info.message, session);
+                this.emit('say', info.message, session.info);
                 //console.log('say', info.message);
                 console.log('');
                 var self = this;
@@ -157,14 +157,14 @@ ChatBotCore.prototype.process = function(rawMessage, line, session) {
                 }, 5000);
             }
             else if (isResult) { // display result
-                this.emit('say', info.message.replace('%user%', session.info.name), session, session.result);
+                this.emit('say', info.message.replace('%user%', session.info.name), session.info, session.result);
                 //console.log('say', info.message, session.result);
                 console.log('');
                 session.states['next']();
                 return this.process(null, null, session);
             }
             else if (isDisplay) { // display any message
-                this.emit('say', info.message.replace('%user%', session.info.name), session);
+                this.emit('say', info.message.replace('%user%', session.info.name), session.info);
                 //console.log('say', info.message);
                 session.states['next']();
             }
