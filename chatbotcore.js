@@ -4,8 +4,8 @@ var ChronoNode = require('chrono-node');
 var EventEmitter = require('events').EventEmitter;
 var util = require('util');
 
-function ChatBotCore(name) {
-    this.botInfo = {name: name || 'Bot'};
+function ChatBotCore(id, name) {
+    this.botInfo = {id: id, name: name || 'Bot'};
     this.sessions = {};
     this.procMatcher = null;
     this.procedures = null;
