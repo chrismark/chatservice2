@@ -65,6 +65,7 @@ ChatBotCore.prototype.process = function(rawMessage, line, session) {
     var curstate = session.states.getMachineState();
     var info = this.statesInfo[curstate];
 
+    var isYesNo = curstate.indexOf('inyesno') == 0; // expecting no or yes
     var isAskingMore = curstate.indexOf('inmore') == 0; // expecting refusal or entry
     var isAskingInput = curstate.indexOf('in') == 0; // expecting an input
     var isProcessing = curstate.indexOf('outproc') == 0; // display "processing..." message
@@ -99,7 +100,35 @@ ChatBotCore.prototype.process = function(rawMessage, line, session) {
     }
     else {
         if (info) {
-            if (isAskingMore) { // 'do something else?' type of message
+            if (isYesNo) {
+                var result = this.procMatcher.get(line);
+                console.log('Result is', result);
+                if (result) {
+                    var perc = result[0][0];
+                    var match = this.procedures[result[0][1]];
+                    console.log('');
+                    if (perc < this.percMatchThreshold) { // doesn't match a root procedure (specifically 'refuse')
+                        console.log('Match % is below threshold:', this.percMatchThreshold);
+                        console.log('must be an input');
+                    }
+                    else { // goto proc's next state and update current state variable
+                        console.log('root procedure match is ', match);
+                        console.log('');
+                        if ('negative' == match) { // we got 'refuse', so we go back to starting state
+                            session.states["next"]();
+                            return this.process(null, null, session);
+                        }
+                        else if ('affirmative' == match) { // must be input
+                            session.states["jump"]();
+                            return this.process(null, line, session);
+                        }
+                    }
+                }
+                // must be an input
+                session.states["jump"]();
+                return this.process(null, line, session);
+            }
+            else if (isAskingMore) { // 'do something else?' type of message
                 var result = this.procMatcher.get(line);
                 console.log('Result is', result);
                 if (result) {
@@ -134,13 +163,13 @@ ChatBotCore.prototype.process = function(rawMessage, line, session) {
                     var match = ChronoNode.parseDate(line);
                     console.log('parsed date', match);
                     console.log('');
-                    session.inputs.date = match;
+                    session.inputs[info.name] = match;
                 }
                 else if (info.expects == 'regex') {
                     var match = info.matcher.exec(line);
-                    console.log('sku', match);
+                    console.log(info.name, match);
                     console.log('');
-                    session.inputs.sku = match;
+                    session.inputs[info.name] = match;
                 }
                 session.states['next']();
                 return this.process(null, null, session);
