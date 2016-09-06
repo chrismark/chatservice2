@@ -65,11 +65,15 @@ ChatBotCore.prototype.process = function(rawMessage, line, session) {
     var curstate = session.states.getMachineState();
     var info = this.statesInfo[curstate];
 
+    var isSameOrInput = curstate.indexOf('insameorinput') == 0;
+    var checkinputs = curstate.indexOf('checkinputs') == 0; 
     var isYesNo = curstate.indexOf('inyesno') == 0; // expecting no or yes
     var isAskingMore = curstate.indexOf('inmore') == 0; // expecting refusal or entry
     var isAskingInput = curstate.indexOf('in') == 0; // expecting an input
+    var isDisplayUsingInputs = curstate.indexOf('outusinginputs') == 0;
     var isProcessing = curstate.indexOf('outproc') == 0; // display "processing..." message
     var isResult = curstate.indexOf('outresult') == 0; // display result
+    var isDisplayThenNext = curstate.indexOf('outnext') == 0; 
     var isDisplay = curstate.indexOf('out') == 0; // display a message
     var isProcMatching = !isAskingMore && !isAskingInput && !isProcessing && !isResult && !isDisplay;
 
@@ -100,7 +104,37 @@ ChatBotCore.prototype.process = function(rawMessage, line, session) {
     }
     else {
         if (info) {
-            if (isYesNo) {
+            if (isSameOrInput) {
+                var result = this.procMatcher.get(line);
+                console.log('Result is', result);
+                if (result) {
+                    var perc = result[0][0];
+                    var match = this.procedures[result[0][1]];
+                    console.log('');
+                    if (perc < this.percMatchThreshold) { // doesn't match a root procedure (specifically 'refuse')
+                        console.log('Match % is below threshold:', this.percMatchThreshold);
+                        console.log('must be an input');
+                    }
+                    else { // goto proc's next state and update current state variable
+                        console.log('root procedure match is ', match);
+                        console.log('');
+                        if (info.procMatch == match && (session.inputs[info.name] !== (void 8) && session.inputs[info.name] !== null)) { // we got 'refuse', so we go back to starting state
+                            console.log(info.procMatch, match, info.name, JSON.stringify(session.inputs));                           
+                            session.states["next"]();
+                            return this.process(null, null, session);
+                        }
+                        else {
+                            // nothing in session.inputs about info.name
+                            session.states["jump"]();
+                            return this.process(null, line, session);            
+                        }
+                    }
+                }
+                // must be an input
+                session.states["jump2"]();
+                return this.process(null, line, session);
+            }
+            else if (isYesNo) {
                 var result = this.procMatcher.get(line);
                 console.log('Result is', result);
                 if (result) {
@@ -144,7 +178,7 @@ ChatBotCore.prototype.process = function(rawMessage, line, session) {
                     else { // goto proc's next state and update current state variable
                         console.log('root procedure match is ', match);
                         console.log('');
-                        if (info.match == match) { // we got 'refuse', so we go back to starting state
+                        if (info.match == "refuse") { // we got 'refuse', so we go back to starting state
                             session.states["next"]();
                             return this.process(null, null, session);
                         }
@@ -192,10 +226,41 @@ ChatBotCore.prototype.process = function(rawMessage, line, session) {
                 session.states['next']();
                 return this.process(null, null, session);
             }
+            else if (isDisplayUsingInputs) {
+                var self = this;
+                var msg = info.message.replace('%user%', session.info.name);
+                // replace %sku% or %date% in msg with actual value in this.inputs
+                if (info.inputs && info.inputs.length) {
+                    for (var i = 0; i < info.inputs.length; i++) {
+                        msg = info.message.replace('%' + info.inputs[i] + '%', session.inputs[ info.inputs[i] ]);
+                    }
+                }
+                /*if (info.delay) {
+                    return setTimeout(function() {
+                        self.emit('say', msg, session.info);
+                        session.states['next']();
+                        self.process(null, null, session);
+                    }, info.delay);
+                }
+                else {*/
+                    this.emit('say', msg, session.info);
+                    session.states['next']();
+                    return self.process(null, null, session);
+                // }
+            }
             else if (isDisplay) { // display any message
-                this.emit('say', info.message.replace('%user%', session.info.name), session.info);
-                //console.log('say', info.message);
-                session.states['next']();
+                var self = this;
+                /*if (info.delay) {
+                    setTimeout(function() {
+                        self.emit('say', info.message.replace('%user%', session.info.name), session.info);
+                        session.states['next']();
+                    }, info.delay) 
+                }
+                else {*/
+                    this.emit('say', info.message.replace('%user%', session.info.name), session.info);
+                    session.states['next']();
+                // }
+                if (info.goNext) return this.process(null, null, session);
             }
         }
     }

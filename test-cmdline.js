@@ -4,9 +4,10 @@ var chatbotSetupData = require('./chatbot-setup-data.js');
 var chatBotCore = new ChatBotCore('HelieX');
 chatBotCore.setup(chatbotSetupData.procedures, chatbotSetupData.statesData, chatbotSetupData.statesInfo);
 chatBotCore.on('say', function(message) {
-    var args = (arguments.length === 1 ? [arguments[0]] : Array.apply(null, arguments));
-    args.unshift('say');
-    console.log.apply(null, args);
+    // var args = (arguments.length === 1 ? [arguments[0]] : Array.apply(null, arguments));
+    // args.unshift('say');
+    // console.log.apply(null, args);
+    console.log(message);
 });
 chatBotCore.on('prompt', function() {
     console.log('');
@@ -26,7 +27,7 @@ rl.prompt();
 rl.on('line', function proc(line) {
     if (line) {
         console.log(`Received ${line}`);  
-        line = {userid: 1, name: 'Mark', message: line};
+        line = {userid: 1, froma: 'Mark', message: line};
     }
 
     chatBotCore.process(line);

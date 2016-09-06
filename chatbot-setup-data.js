@@ -3,6 +3,10 @@ module.exports = {
 		"inyesnosamesku": {
 
 		},
+		"insameorinputskuwhatif": {
+			procMatch: "samesku",
+			name: "sku"
+		},
 		"inwhatifday": {
 			expects: "date",
 			name: "date"
@@ -25,17 +29,27 @@ module.exports = {
 	        expects: "string",
 	        match: "refuse"
 	    },
+	    "outneedsku": {
+	    	message: "There was no previous sku recorded %user%. I'm gonna need an SKU code."
+	    },
+	    "outusinginputsskuwhatif": {
+	    	message: "Ok, using %sku% %user%.",
+	    	inputs: ["sku"],
+	    	delay: 3000
+	    },
 		"outyoumeanskuasbefore": {
 			message: "Do you mean the SKU we just looked at %user%?"
 		},
-		"outdoanewproduct": {
-			message: "No problem %user%, let's do a new product, for what day would you like to predict?"
+		"outwhatifday": {
+			message: "For what day would you like to predict?"
 		},
 		"outwhatifskudesc": {
 			message: "I also need the SKU or description of the product %user%. You can scan the shelf tag if you like."
 		},
 		"outwhatvariable": {
-			message: "What variable would you like to give me? Give me one, I will supply the rest."
+			message: "What variable would you like to give me? Give me one, I will supply the rest.",
+			delayNext: 3000,
+			goNext: true
 		},
 		"outperhapsprice": {
 			message: "Perhaps we migh look at a price change %user%? What price would you like to try? Current price is %current_price%."
@@ -98,26 +112,30 @@ module.exports = {
 	        "wellbeing": "outfinety",
 	        "greeting": "outaskproc",
 	        "salespredict": "outwhatday",
-	        "whatif": "outyoumeanskuasbefore",
+	        "whatif": "outwhatifday",
 	        "thanks": "start",
 	        "refuse": "start",
 	        "yourewelcome": "outyourewelcome"
 	    },
-	    "outyoumeanskuasbefore": {
-	    	"next": "inyesnosamesku"
-	    },
-	    "inyesnosamesku": {
-	    	"next": "outdoanewproduct", // no
-	    	"jump": "outwhatvariable" // yes
-	    },
-	    "outdoanewproduct": {
+	    "outwhatifday": {
 	    	"next": "inwhatifday"
+	    },
+	    "insameorinputskuwhatif": {
+	    	"next": "outusinginputsskuwhatif", // same sku
+	    	"jump": "outneedsku", // need input from user
+	    	"jump2": "inwhatifskudesc"
+	    },
+	    "outusinginputsskuwhatif": {
+	    	"next": "outwhatvariable"
+	    },
+	    "outneedsku": {
+	    	"next": "inwhatifskudesc"
 	    },
 	    "inwhatifday": {
 	    	"next": "outwhatifskudesc"
 	    },
 	    "outwhatifskudesc": {
-	    	"next": "inwhatifskudesc"
+	    	"next": "insameorinputskuwhatif"
 	    },
 	    "inwhatifskudesc": {
 	    	"next": "outwhatvariable"
@@ -190,6 +208,7 @@ module.exports = {
 	    }
 	},
 	procedures: {
+		"same sku": "samesku",
 		"yes": "affirmative",
 		"no": "negative",
 	    "test": "test",
@@ -201,15 +220,15 @@ module.exports = {
 	    "Hi": "greeting",
 	    "Hi HelieX": "greeting",
 	    "Hello HelieX": "greeting",
-	    "no, that's it thanks": "refuse",
-	    "that's all heliex": "refuse",
+	    "no, that's it": "refuse",
+	    "that's all": "refuse",
 	    "no thank you": "refuse",
-	    "HelieX, I would like a sales prediction": "salespredict",
+	    "I would like a sales prediction": "salespredict",
 	    "I would like a sales predictions": "salespredict",
 	    "Sales Prediction": "salespredict",
 	    "Predict sales": "salespredict",
-	    "HelieX, what if I change price on this product?": "whatif",
-	    "HelieX, what if I change price on a product?": "whatif",
+	    "what if I change price on this product?": "whatif",
+	    "what if I change price on a product?": "whatif",
 	    "I would like to what if a product": "whatif",
 	    "Sales what if?": "whatif",
 	    "What if I change price?": "whatif",
