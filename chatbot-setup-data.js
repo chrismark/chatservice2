@@ -93,7 +93,8 @@ module.exports = {
 	        match: "refuse"
 	    },
 	    "outprocrunningsalespred": {
-	        message: "Running sales prediction now."
+	        message: "Running sales prediction now.",
+	        method: "fetchSalesPrediction"
 	    },
 	    "outresultsalespred": {
 	        message: "Sales for %date% are predicted to be %result%",

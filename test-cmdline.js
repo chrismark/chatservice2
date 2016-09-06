@@ -9,6 +9,11 @@ chatBotCore.on('say', function(message) {
     // console.log.apply(null, args);
     console.log(message);
 });
+chatBotCore.registerExternalMethod('fetchSalesPrediction', function(data, cb) {
+    setTimeout(function() {
+        cb(data);
+    }, 5000);
+});
 chatBotCore.on('prompt', function() {
     console.log('');
     rl.prompt();

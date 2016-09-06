@@ -12,6 +12,7 @@
   "dependencies": {
     "chrono-node": "^1.2.4",
     "fuzzyset.js": "git+https://git@github.com/Glench/fuzzyset.js.git",
+    "moment": "^2.14.1",
     "sentiment": "^2.0.0",
     "stately.js": "^1.3.0"
   }

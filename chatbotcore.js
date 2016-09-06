@@ -3,6 +3,7 @@ var Stately = require('stately.js');
 var ChronoNode = require('chrono-node');
 var EventEmitter = require('events').EventEmitter;
 var util = require('util');
+var moment = require('moment');
 
 function ChatBotCore(id, name) {
     this.botInfo = {id: id, name: name || 'Bot'};
@@ -12,10 +13,17 @@ function ChatBotCore(id, name) {
     this.states = null;
     this.statesInfo = null;
     this.percMatchThreshold = 0.4;
+    this.externalMethods = {};
 
     EventEmitter.call(this);
 }
 util.inherits(ChatBotCore, EventEmitter);
+
+ChatBotCore.prototype.registerExternalMethod = function(name, func) {
+    if (!this.externalMethods[name] && typeof func == 'function') {
+        this.externalMethods[name] = func;
+    }
+};
 
 ChatBotCore.prototype.createSession = function(id, name, channel) {
     this.sessions[id] = {
@@ -195,9 +203,9 @@ ChatBotCore.prototype.process = function(rawMessage, line, session) {
             else if (isAskingInput) {
                 if (info.expects == 'date') {
                     var match = ChronoNode.parseDate(line);
-                    console.log('parsed date', match);
+                    console.log('parsed date', match, moment(match).format('YYYY-MM-DD'));
                     console.log('');
-                    session.inputs[info.name] = match;
+                    session.inputs[info.name] = moment(match).format('YYYY-MM-DD');
                 }
                 else if (info.expects == 'regex') {
                     var match = info.matcher.exec(line);
@@ -211,13 +219,15 @@ ChatBotCore.prototype.process = function(rawMessage, line, session) {
             else if (isProcessing) { // display "Processing..Please wait..." message
                 this.emit('say', info.message, session.info);
                 //console.log('say', info.message);
-                console.log('');
+                console.log('', session.inputs);
                 var self = this;
-                return setTimeout(function() {
-                    session.result = session.inputs;
-                    session.states['next']();
-                    self.process(null, null, session);
-                }, 5000);
+                if (this.externalMethods[info.method]) {
+                    return this.externalMethods[info.method](session.inputs, function(result) {
+                        session.result = result;
+                        session.states['next']();
+                        self.process(null, null, session);
+                    });
+                }
             }
             else if (isResult) { // display result
                 var self = this;
