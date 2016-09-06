@@ -221,7 +221,7 @@ ChatBotCore.prototype.process = function(rawMessage, line, session) {
             }
             else if (isResult) { // display result
                 var self = this;
-                this.emit('say', info.message.replace('%user%', session.info.name).replace('%result%', JSON.stringify(session.result)), session.info);
+                this.emit('say', info.message.replace('%user%', session.info.name), session.info);
                 //console.log('say', info.message, session.result);
                 console.log('');
                 return setTimeout(function() {
