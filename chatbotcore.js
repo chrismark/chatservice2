@@ -117,7 +117,7 @@ ChatBotCore.prototype.process = function(rawMessage, line, session) {
                     }
                     else { // goto proc's next state and update current state variable
                         console.log('root procedure match is ', match);
-                        console.log('');
+                        console.log('match against input', info.name, JSON.stringify(session.inputs));
                         if (info.procMatch == match && (session.inputs[info.name] !== (void 8) && session.inputs[info.name] !== null)) { // we got 'refuse', so we go back to starting state
                             console.log(info.procMatch, match, info.name, JSON.stringify(session.inputs));                           
                             session.states["next"]();
@@ -203,7 +203,7 @@ ChatBotCore.prototype.process = function(rawMessage, line, session) {
                     var match = info.matcher.exec(line);
                     console.log(info.name, match);
                     console.log('');
-                    session.inputs[info.name] = match;
+                    session.inputs[info.name] = match[0];
                 }
                 session.states['next']();
                 return this.process(null, null, session);
