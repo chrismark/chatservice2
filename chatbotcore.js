@@ -178,7 +178,7 @@ ChatBotCore.prototype.process = function(rawMessage, line, session) {
                     else { // goto proc's next state and update current state variable
                         console.log('root procedure match is ', match);
                         console.log('');
-                        if (info.match == "refuse") { // we got 'refuse', so we go back to starting state
+                        if ("refuse" == match) { // we got 'refuse', so we go back to starting state
                             session.states["next"]();
                             return this.process(null, null, session);
                         }
