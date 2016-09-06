@@ -35,7 +35,8 @@ module.exports = {
 	    "outusinginputsskuwhatif": {
 	    	message: "Ok, using %sku% %user%.",
 	    	inputs: ["sku"],
-	    	delay: 3000
+	    	delayNext: 3000,
+	    	goNext: true
 	    },
 		"outyoumeanskuasbefore": {
 			message: "Do you mean the SKU we just looked at %user%?"
@@ -95,7 +96,7 @@ module.exports = {
 	        message: "Running sales prediction now."
 	    },
 	    "outresultsalespred": {
-	        message: "Sales for %date% are predicted to be %result%"
+	        message: "Sales for %date% are predicted to be %result%",
 	    },
 	    "outsomethingelse": {
 	        message: "Did you want something else %user%?"

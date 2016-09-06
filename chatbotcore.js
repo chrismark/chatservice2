@@ -220,11 +220,14 @@ ChatBotCore.prototype.process = function(rawMessage, line, session) {
                 }, 5000);
             }
             else if (isResult) { // display result
-                this.emit('say', info.message.replace('%user%', session.info.name), session.info, session.result);
+                var self = this;
+                this.emit('say', info.message.replace('%user%', session.info.name).replace('%result%', JSON.stringify(session.result)), session.info);
                 //console.log('say', info.message, session.result);
                 console.log('');
-                session.states['next']();
-                return this.process(null, null, session);
+                return setTimeout(function() {
+                    session.states['next']();
+                    return self.process(null, null, session);
+                }, info.delayNext || 2000);
             }
             else if (isDisplayUsingInputs) {
                 var self = this;
@@ -232,34 +235,36 @@ ChatBotCore.prototype.process = function(rawMessage, line, session) {
                 // replace %sku% or %date% in msg with actual value in this.inputs
                 if (info.inputs && info.inputs.length) {
                     for (var i = 0; i < info.inputs.length; i++) {
+                        console.log(info.inputs[i], session.inputs[info.inputs[i]]);
                         msg = info.message.replace('%' + info.inputs[i] + '%', session.inputs[ info.inputs[i] ]);
                     }
                 }
-                /*if (info.delay) {
+                msg = msg.replace('%user%', session.info.name);
+                this.emit('say', msg, session.info);
+                console.log('');
+                if (info.delayNext) {
                     return setTimeout(function() {
-                        self.emit('say', msg, session.info);
                         session.states['next']();
-                        self.process(null, null, session);
-                    }, info.delay);
+                        if (info.goNext) return self.process(null, null, session);
+                    }, info.delayNext);
                 }
-                else {*/
-                    this.emit('say', msg, session.info);
+                else {
                     session.states['next']();
-                    return self.process(null, null, session);
-                // }
+                }
+                if (info.goNext) return this.process(null, null, session);
             }
             else if (isDisplay) { // display any message
                 var self = this;
-                /*if (info.delay) {
-                    setTimeout(function() {
-                        self.emit('say', info.message.replace('%user%', session.info.name), session.info);
+                this.emit('say', info.message.replace('%user%', session.info.name), session.info);
+                if (info.delayNext) {
+                    return setTimeout(function() {
                         session.states['next']();
-                    }, info.delay) 
+                        if (info.goNext) return self.process(null, null, session);
+                    }, info.delayNext) 
                 }
-                else {*/
-                    this.emit('say', info.message.replace('%user%', session.info.name), session.info);
+                else {
                     session.states['next']();
-                // }
+                }
                 if (info.goNext) return this.process(null, null, session);
             }
         }
