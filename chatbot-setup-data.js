@@ -23,7 +23,8 @@ module.exports = {
 	    },
 	    "inmorewhatiftryanother": {
 	        expects: "string",
-	        match: "refuse"
+	        match: "refuse",
+	        matchInput: /[a-zA-Z]*[0-9]+/
 	    },
 	    "inmoreanythingelse": {
 	        expects: "string",
@@ -56,10 +57,14 @@ module.exports = {
 			message: "Perhaps we migh look at a price change %user%? What price would you like to try? Current price is %current_price%."
 		},
 		"outprocrunningwhatifprice": {
-			message: "Running sales prediction now."
+			message: "Running sales prediction now.",
+			method: "fetchWhatIf",
+	        resultNames: ["predicted_sales", "previous_predicted", "previous_price"]
 		},
 		"outresultwhatifprice": {
-			message: "Sales are predicted to be %predicted_sales% with the new price. This is down from a predicted %previous_predicted% sales at %previous_price%."
+			message: "Sales are predicted to be %predicted_sales% with the new price %price%. This is down from a predicted %previous_predicted% sales at %previous_price%.",
+			inputs: ["price"],
+			results: ["predicted_sales", "previous_predicted", "previous_price"]
 		},
 		"outwhatiftryanother": {
 			message: "Would you like to try another price %user%?"
@@ -90,12 +95,13 @@ module.exports = {
 	    },
 	    "inmoresomethingelse": {
 	        expects: "string",
-	        match: "refuse"
+	        matchRefuse: "refuse",
+	        matchInput: /[a-zA-Z]*[0-9]+/
 	    },
 	    "outprocrunningsalespred": {
 	        message: "Running sales prediction now.",
 	        method: "fetchSalesPrediction",
-	        resultName: "salesPrediction"
+	        resultNames: ["salesPrediction"]
 	    },
 	    "outresultsalespred": {
 	        message: "Sales for %date% are predicted to be %salesPrediction%",
@@ -164,15 +170,17 @@ module.exports = {
 	    	"next": "inmorewhatiftryanother"
 	    },
 	    "inmorewhatiftryanother": {
-	    	"next": "outanythingelse", // no
-	        "jump": "inwhatifprice" // yes
+	    	"next": "outalwayshere", // no
+	        "jump": "inwhatifprice", // yes
+	        "reset": "start"
 	    },
 	    "outanythingelse": {
 	    	"next": "inmoreanythingelse"
 	    },
 	    "inmoreanythingelse": {
 	    	"next": "outalwayshere",
-	    	"jump": "start"
+	    	"jump": "start",
+	    	"reset": "start"
 	    },
 	    "outfinety": {
 	        "next": "start"
@@ -203,7 +211,8 @@ module.exports = {
 	    },
 	    "inmoresomethingelse": {
 	        "next": "outalwayshere",
-	        "jump": "inskudesc"
+	        "jump": "inskudesc",
+	        "reset": "start"
 	    },
 	    "outalwayshere": {
 	        "next": "start"

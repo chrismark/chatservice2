@@ -190,8 +190,9 @@ ChatBotCore.prototype.process = function(rawMessage, line, session) {
                             session.states["next"]();
                             return this.process(null, null, session);
                         }
-                        else { // must be input
-                            session.states["jump"]();
+                        else { // must be another procedure
+                            session.states["reset"](); // back to start
+                            session.states[match]();
                             return this.process(null, line, session);
                         }
                     }
@@ -222,8 +223,11 @@ ChatBotCore.prototype.process = function(rawMessage, line, session) {
                 console.log('', session.inputs);
                 var self = this;
                 if (this.externalMethods[info.method]) {
-                    return this.externalMethods[info.method](session.inputs, function(result) {
-                        session.results[info.resultName] = result;
+                    return this.externalMethods[info.method](session.inputs, function(results) {
+                        //session.results[info.resultName] = results;
+                        for (var i = 0; i < info.resultNames.length; i++) {
+                            session.results[ info.resultNames[i] ] = results[ info.resultNames[i] ];
+                        }
                         session.states['next']();
                         self.process(null, null, session);
                     });
