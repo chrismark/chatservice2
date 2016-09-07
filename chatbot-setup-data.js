@@ -94,10 +94,13 @@ module.exports = {
 	    },
 	    "outprocrunningsalespred": {
 	        message: "Running sales prediction now.",
-	        method: "fetchSalesPrediction"
+	        method: "fetchSalesPrediction",
+	        resultName: "salesPrediction"
 	    },
 	    "outresultsalespred": {
-	        message: "Sales for %date% are predicted to be %result%",
+	        message: "Sales for %date% are predicted to be %salesPrediction%",
+	        inputs: ["date"],
+	        results: ["salesPrediction"]
 	    },
 	    "outsomethingelse": {
 	        message: "Did you want something else %user%?"

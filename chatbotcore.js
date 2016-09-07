@@ -33,7 +33,7 @@ ChatBotCore.prototype.createSession = function(id, name, channel) {
             channel: channel
         },
         inputs: {},
-        result: '',
+        results: {},
         states: Stately.machine(this.statesData)
     };
 
@@ -223,7 +223,7 @@ ChatBotCore.prototype.process = function(rawMessage, line, session) {
                 var self = this;
                 if (this.externalMethods[info.method]) {
                     return this.externalMethods[info.method](session.inputs, function(result) {
-                        session.result = result;
+                        session.results[info.resultName] = result;
                         session.states['next']();
                         self.process(null, null, session);
                     });
@@ -231,7 +231,22 @@ ChatBotCore.prototype.process = function(rawMessage, line, session) {
             }
             else if (isResult) { // display result
                 var self = this;
-                this.emit('say', info.message.replace('%user%', session.info.name), session.info);
+                var msg = info.message.replace('%user%', session.info.name);
+                console.log(info.inputs, session.inputs, info.results, session.results);
+                // replace %sku% or %date% in msg with actual value in this.inputs
+                if (info.inputs && info.inputs.length) {
+                    for (var i = 0; i < info.inputs.length; i++) {
+                        console.log(info.inputs[i], session.inputs[ info.inputs[i] ]);
+                        msg = msg.replace('%' + info.inputs[i] + '%', session.inputs[ info.inputs[i] ]);
+                    }
+                }
+                if (info.results && info.results.length) {
+                    for (var i = 0; i < info.results.length; i++) {
+                        console.log(info.inputs[i], session.results[ info.results[i] ]);
+                        msg = msg.replace('%' + info.results[i] + '%', session.results[ info.results[i] ]);
+                    }
+                }
+                this.emit('say', msg, session.info);
                 //console.log('say', info.message, session.result);
                 console.log('');
                 return setTimeout(function() {
@@ -245,11 +260,16 @@ ChatBotCore.prototype.process = function(rawMessage, line, session) {
                 // replace %sku% or %date% in msg with actual value in this.inputs
                 if (info.inputs && info.inputs.length) {
                     for (var i = 0; i < info.inputs.length; i++) {
-                        console.log(info.inputs[i], session.inputs[info.inputs[i]]);
-                        msg = info.message.replace('%' + info.inputs[i] + '%', session.inputs[ info.inputs[i] ]);
+                        console.log(info.inputs[i], session.inputs[ info.inputs[i] ]);
+                        msg = msg.replace('%' + info.inputs[i] + '%', session.inputs[ info.inputs[i] ]);
                     }
                 }
-                msg = msg.replace('%user%', session.info.name);
+                if (info.results && info.results.length) {
+                    for (var i = 0; i < info.results.length; i++) {
+                        console.log(info.inputs[i], session.results[ info.results[i] ]);
+                        msg = msg.replace('%' + info.results[i] + '%', session.results[ info.results[i] ]);
+                    }
+                }
                 this.emit('say', msg, session.info);
                 console.log('');
                 if (info.delayNext) {

@@ -11,7 +11,7 @@ chatBotCore.on('say', function(message) {
 });
 chatBotCore.registerExternalMethod('fetchSalesPrediction', function(data, cb) {
     setTimeout(function() {
-        cb(data);
+        cb('2');
     }, 5000);
 });
 chatBotCore.on('prompt', function() {
