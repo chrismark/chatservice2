@@ -214,8 +214,8 @@ module.exports = {
 	},
 	procedures: {
 		"same sku": "samesku",
-		"yes": "affirmative",
-		"no": "negative",
+		/*"yes": "affirmative",
+		"no": "negative",*/
 	    "test": "test",
 	    "thanks": "yourewelcome",
 	    "thanks heliex": "yourewelcome",
@@ -227,7 +227,9 @@ module.exports = {
 	    "Hello HelieX": "greeting",
 	    "no, that's it": "refuse",
 	    "that's all": "refuse",
+	    "that is all": "refuse",
 	    "no thank you": "refuse",
+	    "no thanks": "refuse",
 	    "I would like a sales prediction": "salespredict",
 	    "I would like a sales predictions": "salespredict",
 	    "Sales Prediction": "salespredict",
