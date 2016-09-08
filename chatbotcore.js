@@ -74,16 +74,13 @@ ChatBotCore.prototype.process = function(rawMessage, line, session) {
     var info = this.statesInfo[curstate];
 
     var isSameOrInput = curstate.indexOf('insameorinput') == 0;
-    var checkinputs = curstate.indexOf('checkinputs') == 0; 
-    var isYesNo = curstate.indexOf('inyesno') == 0; // expecting no or yes
     var isAskingMore = curstate.indexOf('inmore') == 0; // expecting refusal or entry
     var isAskingInput = curstate.indexOf('in') == 0; // expecting an input
     var isDisplayUsingInputs = curstate.indexOf('outusinginputs') == 0;
     var isProcessing = curstate.indexOf('outproc') == 0; // display "processing..." message
     var isResult = curstate.indexOf('outresult') == 0; // display result
-    var isDisplayThenNext = curstate.indexOf('outnext') == 0; 
     var isDisplay = curstate.indexOf('out') == 0; // display a message
-    var isProcMatching = !isAskingMore && !isAskingInput && !isProcessing && !isResult && !isDisplay;
+    var isProcMatching = !isAskingMore && !isAskingInput && !isProcessing && !isResult && !isDisplay && !isSameOrInput && !isDisplayUsingInputs;
 
     if (isProcMatching && line) { // match for root procedure names
         var result = this.procMatcher.get(line);
@@ -140,34 +137,6 @@ ChatBotCore.prototype.process = function(rawMessage, line, session) {
                 }
                 // must be an input
                 session.states["jump2"]();
-                return this.process(null, line, session);
-            }
-            else if (isYesNo) {
-                var result = this.procMatcher.get(line);
-                console.log('Result is', result);
-                if (result) {
-                    var perc = result[0][0];
-                    var match = this.procedures[result[0][1]];
-                    console.log('');
-                    if (perc < this.percMatchThreshold) { // doesn't match a root procedure (specifically 'refuse')
-                        console.log('Match % is below threshold:', this.percMatchThreshold);
-                        console.log('must be an input');
-                    }
-                    else { // goto proc's next state and update current state variable
-                        console.log('root procedure match is ', match);
-                        console.log('');
-                        if ('negative' == match) { // we got 'refuse', so we go back to starting state
-                            session.states["next"]();
-                            return this.process(null, null, session);
-                        }
-                        else if ('affirmative' == match) { // must be input
-                            session.states["jump"]();
-                            return this.process(null, line, session);
-                        }
-                    }
-                }
-                // must be an input
-                session.states["jump"]();
                 return this.process(null, line, session);
             }
             else if (isAskingMore) { // 'do something else?' type of message

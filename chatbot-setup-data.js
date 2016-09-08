@@ -1,8 +1,5 @@
 module.exports = {
 	statesInfo: {
-		"inyesnosamesku": {
-
-		},
 		"insameorinputskuwhatif": {
 			procMatch: "samesku",
 			name: "sku"

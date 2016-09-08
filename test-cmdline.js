@@ -1,7 +1,7 @@
 var ChatBotCore = require('./index.js');
 var chatbotSetupData = require('./chatbot-setup-data.js');
 
-var chatBotCore = new ChatBotCore('HelieX');
+var chatBotCore = new ChatBotCore(8, 'HelieX');
 chatBotCore.setup(chatbotSetupData.procedures, chatbotSetupData.statesData, chatbotSetupData.statesInfo);
 chatBotCore.on('say', function(message) {
     // var args = (arguments.length === 1 ? [arguments[0]] : Array.apply(null, arguments));
