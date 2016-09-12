@@ -14,9 +14,19 @@ chatBotCore.registerExternalMethod('fetchSalesPrediction', function(data, cb) {
         cb({salesPrediction: 2});
     }, 5000);
 });
+chatBotCore.registerExternalMethod('fetchPreSalesPrediction', function(data, cb) {
+    setTimeout(function() {
+        cb({preSalesPrediction: 2});
+    }, 5000);
+});
+chatBotCore.registerExternalMethod('fetchCurrentPrice', function(data, cb) {
+    setTimeout(function() {
+        cb({current_price: 5.67});
+    }, 5000);
+});
 chatBotCore.registerExternalMethod('fetchWhatIf', function(data, cb) {
     setTimeout(function() {
-        cb({predicted_sales: 2, previous_predicted: 1, previous_price: 9.99});
+        cb({predicted_sales: 2});
     }, 5000);
 });
 chatBotCore.on('prompt', function() {

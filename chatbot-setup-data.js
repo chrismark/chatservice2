@@ -45,23 +45,40 @@ module.exports = {
 		"outwhatifskudesc": {
 			message: "I also need the SKU or description of the product %user%. You can scan the shelf tag if you like."
 		},
+		"outprocgetcurprice": {
+	    	message: "Thanks for the input, %user%. Getting current price of %sku% for %date% now. Please wait for a bit.",
+	    	inputs: ["sku", "date"],
+	    	method: "fetchCurrentPrice",
+	    	resultNames: ["current_price"]
+	    },
+	    "outprocgetsalespred": {
+	    	message: "Now I'm getting sales prediction for those...",
+	    	method: "fetchPreSalesPrediction",
+	    	resultNames: ["preSalesPrediction"]
+	    },
+	    "outresultgetsalespred": {
+	    	message: "Okay, we predicted %preSalesPrediction% sales of %sku% for %date% at current price of %current_price%.",
+	    	inputs: ["sku", "date"],
+	    	results: ["preSalesPrediction", "current_price"] 
+	    },
 		"outwhatvariable": {
 			message: "What variable would you like to give me? Give me one, I will supply the rest.",
-			delayNext: 3000,
+			delayNext: 2200,
 			goNext: true
 		},
 		"outperhapsprice": {
-			message: "Perhaps we migh look at a price change %user%? What price would you like to try? Current price is %current_price%."
+			message: "Perhaps we might look at a price change %user%? What price would you like to try? Current price is %current_price%.",
+			results: ["current_price"]
 		},
 		"outprocrunningwhatifprice": {
 			message: "Running sales prediction now.",
 			method: "fetchWhatIf",
-	        resultNames: ["predicted_sales", "previous_predicted", "previous_price"]
+	        resultNames: ["predicted_sales"]
 		},
 		"outresultwhatifprice": {
-			message: "Sales are predicted to be %predicted_sales% with the new price %price%. This is down from a predicted %previous_predicted% sales at %previous_price%.",
+			message: "Sales are predicted to be %predicted_sales% with the new price %price%. In comparison, sales is predicted at %preSalesPrediction% at current price of %current_price%.",
 			inputs: ["price"],
-			results: ["predicted_sales", "previous_predicted", "previous_price"]
+			results: ["predicted_sales", "preSalesPrediction", "current_price"]
 		},
 		"outwhatiftryanother": {
 			message: "Would you like to try another price %user%?"
@@ -146,6 +163,15 @@ module.exports = {
 	    	"next": "insameorinputskuwhatif"
 	    },
 	    "inwhatifskudesc": {
+	    	"next": "outprocgetcurprice" //"outwhatvariable"
+	    },
+	    "outprocgetcurprice": {
+	    	"next": "outprocgetsalespred"
+	    },
+	    "outprocgetsalespred": {
+	    	"next": "outresultgetsalespred"
+	    },
+	    "outresultgetsalespred": {
 	    	"next": "outwhatvariable"
 	    },
 	    "outwhatvariable": {
@@ -220,8 +246,6 @@ module.exports = {
 	},
 	procedures: {
 		"same sku": "samesku",
-		/*"yes": "affirmative",
-		"no": "negative",*/
 	    "test": "test",
 	    "thanks": "yourewelcome",
 	    "thanks heliex": "yourewelcome",

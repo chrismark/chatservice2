@@ -56,6 +56,28 @@ ChatBotCore.prototype.setup = function(procedures, statesData, statesInfo) {
     }
 };
 
+ChatBotCore.prototype.fillMessageVars = function(message, keys, map) {
+    if (keys && keys.length) {
+        for (var i = 0; i < keys.length; i++) {
+            message = message.replace('%' + keys[i] + '%', map[ keys[i] ]);
+        }
+    }
+    return message;
+};
+
+ChatBotCore.prototype.resolveMessage = function(message, info, session) {
+    var output = '';
+    if (typeof message == 'function') {
+        output = message.call(this, info, session);
+    }
+    else {
+        output = this.fillMessageVars(message, info.inputs, session.inputs);
+        output = this.fillMessageVars(output, info.results, session.results);
+    }
+    output = this.fillMessageVars(output, ['user'], {user: session.info.name});
+    return output || 'Hmmm. I am speechless.';
+};
+
 /*
 rawMessage Object the chat message
 line       String a line of message
@@ -187,13 +209,13 @@ ChatBotCore.prototype.process = function(rawMessage, line, session) {
                 return this.process(null, null, session);
             }
             else if (isProcessing) { // display "Processing..Please wait..." message
-                this.emit('say', info.message, session.info);
-                //console.log('say', info.message);
-                console.log('', session.inputs);
                 var self = this;
+                var msg = this.resolveMessage(info.message, info, session);
+                this.emit('say', msg, session.info);
+
+                console.log('', session.inputs);
                 if (this.externalMethods[info.method]) {
                     return this.externalMethods[info.method](session.inputs, function(results) {
-                        //session.results[info.resultName] = results;
                         for (var i = 0; i < info.resultNames.length; i++) {
                             session.results[ info.resultNames[i] ] = results[ info.resultNames[i] ];
                         }
@@ -204,23 +226,10 @@ ChatBotCore.prototype.process = function(rawMessage, line, session) {
             }
             else if (isResult) { // display result
                 var self = this;
-                var msg = info.message.replace('%user%', session.info.name);
                 console.log(info.inputs, session.inputs, info.results, session.results);
-                // replace %sku% or %date% in msg with actual value in this.inputs
-                if (info.inputs && info.inputs.length) {
-                    for (var i = 0; i < info.inputs.length; i++) {
-                        console.log(info.inputs[i], session.inputs[ info.inputs[i] ]);
-                        msg = msg.replace('%' + info.inputs[i] + '%', session.inputs[ info.inputs[i] ]);
-                    }
-                }
-                if (info.results && info.results.length) {
-                    for (var i = 0; i < info.results.length; i++) {
-                        console.log(info.inputs[i], session.results[ info.results[i] ]);
-                        msg = msg.replace('%' + info.results[i] + '%', session.results[ info.results[i] ]);
-                    }
-                }
+                var msg = this.resolveMessage(info.message, info, session);
                 this.emit('say', msg, session.info);
-                //console.log('say', info.message, session.result);
+
                 console.log('');
                 return setTimeout(function() {
                     session.states['next']();
@@ -229,21 +238,9 @@ ChatBotCore.prototype.process = function(rawMessage, line, session) {
             }
             else if (isDisplayUsingInputs) {
                 var self = this;
-                var msg = info.message.replace('%user%', session.info.name);
-                // replace %sku% or %date% in msg with actual value in this.inputs
-                if (info.inputs && info.inputs.length) {
-                    for (var i = 0; i < info.inputs.length; i++) {
-                        console.log(info.inputs[i], session.inputs[ info.inputs[i] ]);
-                        msg = msg.replace('%' + info.inputs[i] + '%', session.inputs[ info.inputs[i] ]);
-                    }
-                }
-                if (info.results && info.results.length) {
-                    for (var i = 0; i < info.results.length; i++) {
-                        console.log(info.inputs[i], session.results[ info.results[i] ]);
-                        msg = msg.replace('%' + info.results[i] + '%', session.results[ info.results[i] ]);
-                    }
-                }
+                var msg = this.resolveMessage(info.message, info, session);
                 this.emit('say', msg, session.info);
+                
                 console.log('');
                 if (info.delayNext) {
                     return setTimeout(function() {
@@ -258,7 +255,9 @@ ChatBotCore.prototype.process = function(rawMessage, line, session) {
             }
             else if (isDisplay) { // display any message
                 var self = this;
-                this.emit('say', info.message.replace('%user%', session.info.name), session.info);
+                var msg = this.resolveMessage(info.message, info, session);
+                this.emit('say', msg, session.info); //info.message.replace('%user%', session.info.name), session.info);
+
                 if (info.delayNext) {
                     return setTimeout(function() {
                         session.states['next']();
