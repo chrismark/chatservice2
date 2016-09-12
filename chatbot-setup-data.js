@@ -46,13 +46,13 @@ module.exports = {
 			message: "I also need the SKU or description of the product %user%. You can scan the shelf tag if you like."
 		},
 		"outprocgetcurprice": {
-	    	message: "Thanks for the input, %user%. Getting current price of %sku% for %date% now. Please wait for a bit.",
+	    	message: "Thanks for the input, %user%. Getting current price and sales prediction of %sku% for %date% now. Please wait for a bit.",
 	    	inputs: ["sku", "date"],
 	    	method: "fetchCurrentPrice",
 	    	resultNames: ["current_price"]
 	    },
 	    "outprocgetsalespred": {
-	    	message: "Now I'm getting sales prediction for those...",
+	    	message: "",
 	    	method: "fetchPreSalesPrediction",
 	    	resultNames: ["preSalesPrediction"]
 	    },
@@ -151,7 +151,7 @@ module.exports = {
 	    	"jump2": "inwhatifskudesc"
 	    },
 	    "outusinginputsskuwhatif": {
-	    	"next": "outwhatvariable"
+	    	"next": "outprocgetcurprice" //"outwhatvariable"
 	    },
 	    "outneedsku": {
 	    	"next": "inwhatifskudesc"
@@ -172,7 +172,7 @@ module.exports = {
 	    	"next": "outresultgetsalespred"
 	    },
 	    "outresultgetsalespred": {
-	    	"next": "outwhatvariable"
+	    	"next": "outperhapsprice" //"outwhatvariable"
 	    },
 	    "outwhatvariable": {
 	    	"next": "outperhapsprice"

@@ -75,7 +75,7 @@ ChatBotCore.prototype.resolveMessage = function(message, info, session) {
         output = this.fillMessageVars(output, info.results, session.results);
     }
     output = this.fillMessageVars(output, ['user'], {user: session.info.name});
-    return output || 'Hmmm. I am speechless.';
+    return output || '';
 };
 
 /*
@@ -211,7 +211,7 @@ ChatBotCore.prototype.process = function(rawMessage, line, session) {
             else if (isProcessing) { // display "Processing..Please wait..." message
                 var self = this;
                 var msg = this.resolveMessage(info.message, info, session);
-                this.emit('say', msg, session.info);
+                if (msg && msg.length) this.emit('say', msg, session.info);
 
                 console.log('', session.inputs);
                 if (this.externalMethods[info.method]) {
@@ -228,7 +228,7 @@ ChatBotCore.prototype.process = function(rawMessage, line, session) {
                 var self = this;
                 console.log(info.inputs, session.inputs, info.results, session.results);
                 var msg = this.resolveMessage(info.message, info, session);
-                this.emit('say', msg, session.info);
+                if (msg && msg.length) this.emit('say', msg, session.info);
 
                 console.log('');
                 return setTimeout(function() {
@@ -239,7 +239,7 @@ ChatBotCore.prototype.process = function(rawMessage, line, session) {
             else if (isDisplayUsingInputs) {
                 var self = this;
                 var msg = this.resolveMessage(info.message, info, session);
-                this.emit('say', msg, session.info);
+                if (msg && msg.length) this.emit('say', msg, session.info);
                 
                 console.log('');
                 if (info.delayNext) {
@@ -256,7 +256,8 @@ ChatBotCore.prototype.process = function(rawMessage, line, session) {
             else if (isDisplay) { // display any message
                 var self = this;
                 var msg = this.resolveMessage(info.message, info, session);
-                this.emit('say', msg, session.info); //info.message.replace('%user%', session.info.name), session.info);
+                
+                if (msg && msg.length) this.emit('say', msg, session.info);
 
                 if (info.delayNext) {
                     return setTimeout(function() {
